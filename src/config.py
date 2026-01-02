@@ -36,6 +36,9 @@ class ModelConfig:
     # Validation size (from training set)
     VAL_SIZE: float = 0.2
     
+    # Fraud detection threshold (probability above which transaction is flagged as fraud)
+    FRAUD_THRESHOLD: float = float(os.getenv("FRAUD_THRESHOLD", "0.15"))  # 15% default
+    
     # XGBoost parameters
     XGB_PARAMS: dict = {
         "objective": "binary:logistic",

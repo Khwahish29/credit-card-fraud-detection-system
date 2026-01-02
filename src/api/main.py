@@ -6,7 +6,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from src.config import APIConfig
+from src.config import APIConfig, ModelConfig
 from src.models.loader import load_model
 from src.utils import setup_logger
 
@@ -37,7 +37,7 @@ class TransactionFeatures(BaseModel):
     
     class Config:
         """Pydantic config."""
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "features": {
                     "V1": -1.359807134,
@@ -60,7 +60,7 @@ class PredictionRequest(BaseModel):
     
     class Config:
         """Pydantic config."""
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "transaction_id": "txn_12345",
                 "features": {
@@ -82,8 +82,8 @@ class PredictionResponse(BaseModel):
         le=1.0,
         description="Probability of fraud (0.0 to 1.0)",
     )
-    is_fraud: bool = Field(..., description="Fraud prediction (threshold: 0.5)")
-    threshold: float = Field(default=0.5, description="Threshold used for classification")
+    is_fraud: bool = Field(..., description="Fraud prediction based on configured threshold")
+    threshold: float = Field(default=0.15, description="Threshold used for classification")
 
 
 @app.on_event("startup")
@@ -139,8 +139,8 @@ async def health() -> Dict[str, str]:
     
     return {
         "status": "healthy" if is_ready else "unhealthy",
-        "model_loaded": model is not None,
-        "preprocessor_loaded": preprocessor is not None,
+        "model_loaded": str(model is not None),
+        "preprocessor_loaded": str(preprocessor is not None),
     }
 
 
@@ -188,7 +188,7 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
         
         # Predict
         fraud_probability = float(model.predict_proba(features_transformed)[0, 1])
-        threshold = 0.5
+        threshold = ModelConfig.FRAUD_THRESHOLD
         is_fraud = fraud_probability >= threshold
         
         logger.info(
@@ -257,7 +257,7 @@ async def predict_batch(
         
         # Predict
         fraud_probabilities = model.predict_proba(features_transformed)[:, 1]
-        threshold = 0.5
+        threshold = ModelConfig.FRAUD_THRESHOLD
         
         # Build responses
         responses = []

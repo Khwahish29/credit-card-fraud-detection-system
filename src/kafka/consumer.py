@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, Callable
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 
-from src.config import KafkaConfig
+from src.config import KafkaConfig, ModelConfig
 from src.models.loader import load_model
 from src.data.preprocessor import FraudPreprocessor
 from src.utils import setup_logger
@@ -134,7 +134,7 @@ class TransactionConsumer:
             fraud_probability = float(
                 self.model.predict_proba(features_transformed)[0, 1]
             )
-            threshold = 0.5
+            threshold = ModelConfig.FRAUD_THRESHOLD
             is_fraud = fraud_probability >= threshold
             
             result = {

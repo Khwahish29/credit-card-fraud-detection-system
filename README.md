@@ -79,7 +79,7 @@ To process transactions from Kafka and publish scored results:
 python -m src.kafka.consumer_main
 ```
 
-### Running with Docker Compose
+### Running with Docker Compose (Development)
 
 ```bash
 docker-compose up -d
@@ -95,10 +95,25 @@ To stop all services:
 docker-compose down
 ```
 
-To run the Kafka consumer separately (outside docker-compose):
+### Production Deployment
+
+For production deployment, see the detailed guides:
+
+**Quick Start:**
 ```bash
-python -m src.kafka.consumer_main
+./deploy.sh
 ```
+
+**Detailed Guide:** See `PRODUCTION_DEPLOYMENT.md`
+
+**Quick Reference:** See `QUICK_START_PRODUCTION.md`
+
+The production setup includes:
+- Production-optimized Dockerfile with multiple workers
+- Resource limits and health checks
+- Persistent volumes for Kafka data
+- Environment variable configuration
+- Security best practices
 
 ## API Endpoints
 
